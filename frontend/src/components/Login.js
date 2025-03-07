@@ -24,42 +24,43 @@ function Login() {
                 password,
                 role
             });
-
+    
             console.log("API Response:", response);
-
+    
             if (response.data && response.data.access) {
                 const accessToken = response.data.access;
-                const decoded = jwtDecode(accessToken); // Decode JWT token
-
-                console.log("Decoded Token:", decoded);
-                console.log("Role from Token:", decoded.role);
+                const decoded = jwtDecode(accessToken);
+    
+                console.log("Decoded Role:", decoded.role);
                 console.log("Selected Role:", role);
-
+    
                 if (!decoded.role) {
                     setError("Invalid token format. Role is missing.");
                     return;
                 }
-
+    
                 if (decoded.role !== role) {
                     setError("Invalid role selection. Please choose the correct role.");
                     return;
                 }
-
-                // Store authentication tokens
+    
                 localStorage.setItem("access", accessToken);
                 localStorage.setItem("refresh", response.data.refresh);
                 localStorage.setItem("role", decoded.role);
-
+    
                 console.log("Login successful! Redirecting...");
-
+    
                 switch (decoded.role) {
                     case "admin":
+                        console.log("Navigating to /admin-dashboard");
                         navigate("/admin-dashboard");
                         break;
                     case "technician":
+                        console.log("Navigating to /technician-dashboard");
                         navigate("/technician-dashboard");
                         break;
                     case "operator":
+                        console.log("Navigating to /operator-dashboard");
                         navigate("/operator-dashboard");
                         break;
                     default:
@@ -75,7 +76,6 @@ function Login() {
             setError("Invalid username, password, or role.");
         }
     };
-
 
 
 

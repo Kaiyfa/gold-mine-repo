@@ -9,8 +9,7 @@ function OperatorDashboard() {
         const role = localStorage.getItem("role");
 
         if (role !== "operator") {
-            navigate("/"); // Redirect to login if not an operator
-        } else {
+            navigate("/");
             setUsername(localStorage.getItem("username"));
         }
     }, [navigate]);

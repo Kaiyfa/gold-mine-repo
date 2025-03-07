@@ -9,7 +9,7 @@ function TechnicianDashboard() {
         const role = localStorage.getItem("role");
 
         if (role !== "technician") {
-            navigate("/"); // Redirect to login if not a technician
+            navigate("/"); 
         } else {
             setUsername(localStorage.getItem("username"));
         }
