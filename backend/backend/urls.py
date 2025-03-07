@@ -1,33 +1,30 @@
-"""
-URL configuration for backend project.
-
-The `urlpatterns` list routes URLs to views. For more information please see:
-    https://docs.djangoproject.com/en/5.1/topics/http/urls/
-Examples:
-Function views
-    1. Add an import:  from my_app import views
-    2. Add a URL to urlpatterns:  path('', views.home, name='home')
-Class-based views
-    1. Add an import:  from other_app.views import Home
-    2. Add a URL to urlpatterns:  path('', Home.as_view(), name='home')
-Including another URLconf
-    1. Import the include() function: from django.urls import include, path
-    2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
-"""
-
-# from django.contrib import admin
-# from django.urls import path
-
-# urlpatterns = [
-#     path("admin/", admin.site.urls),
-# ]
-
-
 # backend/backend/urls.py
 from django.contrib import admin
 from django.urls import path, include
+from django.http import JsonResponse
+from .views import MachineListCreateView, MachineDetailView, PerformanceView, DashboardSummaryView
+
+# Home endpoint (optional)
+def home(request):
+    return JsonResponse({"message": "Welcome to the Gold Mine Management API"})
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
-    path('api/auth/', include('authentication.urls')),
+    # Admin panel
+    path("admin/", admin.site.urls),
+
+    # Authentication endpoints (e.g., login, logout, token refresh)
+    path("api/auth/", include("authentication.urls")),
+
+    # Home endpoint
+    path("", home),
+
+    # Machine Endpoints
+    path("api/machines/", MachineListCreateView.as_view(), name="machine-list-create"),
+    path("api/machines/<int:pk>/", MachineDetailView.as_view(), name="machine-detail"),
+
+    # Dashboard Summary Endpoint
+    path("api/dashboard/summary/", DashboardSummaryView.as_view(), name="dashboard-summary"),
+
+    # Performance Endpoint
+    path("api/performance/", PerformanceView.as_view(), name="performance-api"),
 ]
