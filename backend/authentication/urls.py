@@ -10,6 +10,6 @@ urlpatterns = [
     path("logout/", LogoutView.as_view(), name="logout"),
     path("refresh-token/", refresh_access_token, name="refresh-token"),  
     path("add-user/", AddUserView.as_view(), name="add-user"),
-    path("machines/update-status/<int:machine_id>/", update_machine_status, name="update-machine-status"),
-    path("maintenance/report/", submit_maintenance_report, name="submit-maintenance-report"),
+    # path("machines/update-status/<int:machine_id>/", update_machine_status, name="update-machine-status"),
+    # path("maintenance/report/", submit_maintenance_report, name="submit-maintenance-report"),
 ]

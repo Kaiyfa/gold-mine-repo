@@ -1,14 +1,11 @@
 from .models import Operator
-from django.apps import apps
-Performance = apps.get_model("authentication", "Performance")
-
-
+from django.apps import apps 
 # backend/authentication/serializers.py
 from rest_framework import serializers
 from django.conf import settings  
 from .models import Profile,  Manufacturer 
 from core.models import Machine, Technician 
-
+from .models import Performance
 # User Serializer
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
@@ -62,3 +59,5 @@ class OperatorSerializer(serializers.ModelSerializer):
     class Meta:
         model = Operator
         fields = '__all__'
+
+Performance = apps.get_model("authentication", "Performance")

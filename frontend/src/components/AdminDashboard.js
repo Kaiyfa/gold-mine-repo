@@ -992,8 +992,8 @@ import { useNavigate } from "react-router-dom";
 import { Bar } from "react-chartjs-2";
 import "chart.js/auto";
 import api from "../api";
-import { FaWrench, FaUserShield, FaTools, FaHardHat } from "react-icons/fa"; // Icons for roles
-import "bootstrap/dist/css/bootstrap.min.css"; // Bootstrap CSS
+import { FaWrench, FaUserShield, FaTools, FaHardHat, FaSearch } from "react-icons/fa";
+import "bootstrap/dist/css/bootstrap.min.css"; 
 
 function AdminDashboard() {
     const [machines, setMachines] = useState([]);
@@ -1018,7 +1018,9 @@ function AdminDashboard() {
         role: "technician",
         idNumber: "",
     });
-    const [performanceData, setPerformanceData] = useState([]);
+
+    const [performanceData, setPerformanceData] = useState([]); 
+
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -1031,6 +1033,37 @@ function AdminDashboard() {
         fetchMachines();
         fetchPerformanceData();
     }, [navigate]);
+
+
+    const fetchPerformanceData = async () => {
+        try {
+            const token = localStorage.getItem("access");
+            const response = await api.get("/performance/", {
+                headers: { Authorization: `Bearer ${token}` },
+            });
+    
+            if (response.data.length === 0) {
+                console.warn("No performance data available");
+            }
+    
+            setPerformanceData(response.data);
+        } catch (error) {
+            console.error("Error fetching performance data:", error);
+        }
+    };
+    
+    const performanceGraphData = {
+        labels: performanceData.map((item) => `Machine ${item.machine_id}`),
+        datasets: [
+            {
+                label: "Efficiency (%)",
+                data: performanceData.map((item) => item.efficiency),
+                backgroundColor: "rgba(255, 215, 0, 0.7)",
+            },
+        ],
+    };
+    
+    
 
     const fetchDashboardSummary = async () => {
         try {
@@ -1052,18 +1085,6 @@ function AdminDashboard() {
             setMachines(data);
         } catch (error) {
             console.error("Error fetching machines:", error);
-        }
-    };
-
-    const fetchPerformanceData = async () => {
-        try {
-            const token = localStorage.getItem("access");
-            const { data } = await api.get("/performance/", {
-                headers: { Authorization: `Bearer ${token}` },
-            });
-            setPerformanceData(data);
-        } catch (error) {
-            console.error("Error fetching performance data:", error);
         }
     };
 
@@ -1157,22 +1178,14 @@ function AdminDashboard() {
     return (
         <div className="container-fluid min-vh-100" style={{ background: "linear-gradient(to bottom, #000, #333)", color: "white" }}>
             {/* Header */}
-            <header className="d-flex justify-content-between align-items-center p-3" style={{ background: "#000" }}>
-                <div className="d-flex align-items-center">
-                    <FaWrench size={30} color="#FFD700" className="me-2" />
-                    <h1 className="m-0 text-warning">Admin Dashboard</h1>
-                </div>
-                <div className="d-flex align-items-center">
-                    <input
-                        type="text"
-                        placeholder="Search by Machine ID or Name"
-                        value={searchTerm}
-                        onChange={handleSearch}
-                        className="form-control me-2"
-                        style={{ maxWidth: "300px" }}
-                    />
-                    <button onClick={handleClearSearch} className="btn btn-warning">
-                        Clear
+            <header className="d-flex justify-content-between align-items-center p-3 bg-black">
+                <h1 className="text-warning">
+                    <FaWrench className="me-2" /> Admin Dashboard
+                </h1>
+                <div className="input-group" style={{ maxWidth: "350px" }}>
+                    <input type="text" className="form-control" placeholder="Search Machine" value={searchTerm} onChange={handleSearch} />
+                    <button className="btn btn-warning" onClick={handleClearSearch}>
+                        <FaSearch />
                     </button>
                 </div>
             </header>
@@ -1180,27 +1193,15 @@ function AdminDashboard() {
             {/* Sidebar and Main Content */}
             <div className="row flex-grow-1">
                 {/* Sidebar */}
-                <div className="col-md-2 p-3" style={{ background: "#222" }}>
-                    <ul className="list-unstyled">
-                        <li
-                            className={`p-3 mb-2 ${selectedSection === "machines" ? "bg-warning text-dark" : "text-white"}`}
-                            style={{ cursor: "pointer" }}
-                            onClick={() => setSelectedSection("machines")}
-                        >
+                <div className="col-md-2 p-3 bg-secondary">
+                    <ul className="nav flex-column">
+                        <li className={`nav-item p-2 ${selectedSection === "machines" ? "bg-warning text-dark" : "text-light"}`} onClick={() => setSelectedSection("machines")}>
                             <FaTools className="me-2" /> Machines
                         </li>
-                        <li
-                            className={`p-3 mb-2 ${selectedSection === "performance" ? "bg-warning text-dark" : "text-white"}`}
-                            style={{ cursor: "pointer" }}
-                            onClick={() => setSelectedSection("performance")}
-                        >
-                            <FaHardHat className="me-2" /> Performance
+                        <li className={`nav-item p-2 ${selectedSection === "performance" ? "bg-warning text-dark" : "text-light"}`} onClick={() => setSelectedSection("performance")}>
+                            <FaHardHat className="me-2" /> Performance Machine
                         </li>
-                        <li
-                            className={`p-3 mb-2 ${selectedSection === "createUser" ? "bg-warning text-dark" : "text-white"}`}
-                            style={{ cursor: "pointer" }}
-                            onClick={() => setSelectedSection("createUser")}
-                        >
+                        <li className={`nav-item p-2 ${selectedSection === "createUser" ? "bg-warning text-dark" : "text-light"}`} onClick={() => setSelectedSection("createUser")}>
                             <FaUserShield className="me-2" /> Create User
                         </li>
                     </ul>
@@ -1378,21 +1379,15 @@ function AdminDashboard() {
 
                         {selectedSection === "performance" && (
                             <div>
-                                <h2>Performance Monitoring</h2>
-                                <Bar
-                                    data={{
-                                        labels: performanceData.map((item) => `Machine ${item.id}`),
-                                        datasets: [
-                                            {
-                                                label: "Downtime (hours)",
-                                                data: performanceData.map((item) => item.average_downtime),
-                                                backgroundColor: "#FFD700",
-                                            },
-                                        ],
-                                    }}
-                                />
+                                <h2 className="text-warning">Performance Monitoring</h2>
+                                {performanceData.length > 0 ? (
+                                    <Bar data={performanceGraphData} />
+                                ) : (
+                                    <p className="text-danger">No performance data available.</p> // ✅ Prevents empty graph issue
+                                )}
                             </div>
                         )}
+
 
                         {selectedSection === "createUser" && (
                             <div>

@@ -4,7 +4,7 @@ from django.urls import path, include
 from django.http import JsonResponse
 from .views import (
     MachineListCreateView, MachineDetailView, PerformanceView,
-    DashboardSummaryView, update_machine_status, submit_maintenance_report
+    DashboardSummaryView, update_machine_status, submit_maintenance_report, start_machine_operation
 )
 from backend.views import get_machines
 
@@ -21,8 +21,9 @@ urlpatterns = [
 
     # Home endpoint
     path("", home),
-    path("api/machines/", get_machines, name="get-machines"),  # ✅ Ensure this is correct
+    path("api/machines/", get_machines, name="get-machines"), 
 
+    path("api/machines/start-operation/", start_machine_operation, name="start-machine-operation"),
 
     # Machine Endpoints
     path("api/machines/", MachineListCreateView.as_view(), name="machine-list-create"),

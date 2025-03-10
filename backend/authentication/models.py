@@ -75,8 +75,19 @@ class CustomUser(AbstractUser):
     
 
 class Performance(models.Model):
-    machine = models.ForeignKey(Machine, on_delete=models.CASCADE) 
-    performance = models.FloatField()
+    machine = models.OneToOneField(Machine, on_delete=models.CASCADE)
+    uptime = models.FloatField(default=0.0)  # Hours machine was active
+    downtime = models.FloatField(default=0.0)  # Hours machine was down
+    efficiency = models.FloatField(default=0.0)  # Efficiency %
+
+    def update_efficiency(self):
+        """Automatically calculate efficiency"""
+        total_time = self.uptime + self.downtime
+        if total_time == 0:
+            self.efficiency = 0  # Avoid division by zero
+        else:
+            self.efficiency = (self.uptime / total_time) * 100
+        self.save()
 
     def __str__(self):
-        return f"Performance of {self.machine.name}"
+        return f"Machine {self.machine.id} - Efficiency: {self.efficiency}%"
