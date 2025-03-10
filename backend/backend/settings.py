@@ -42,7 +42,7 @@ INSTALLED_APPS = [
     'rest_framework_simplejwt',
     'corsheaders', 
     'core',
-    
+     "django_bootstrap5",
 
 ]
 
@@ -50,6 +50,9 @@ INSTALLED_APPS = [
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ),
+     'DEFAULT_PERMISSION_CLASSES': (
+        'rest_framework.permissions.IsAuthenticated',
     ),
 }
 
@@ -103,11 +106,11 @@ WSGI_APPLICATION = "backend.wsgi.application"
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'goldminemanagement',  # Name of your MySQL database
-        'USER': 'root',  # Your MySQL root user
-        'PASSWORD': 'soulmate',  # Your MySQL password
-        'HOST': '192.168.64.5',  # IP of your Virtual Windows Machine
-        'PORT': '3306',  # MySQL port (default 3306)
+        'NAME': 'goldminemanagement',
+        'USER': 'root', 
+        'PASSWORD': 'soulmate', 
+        'HOST': '192.168.64.5',  
+        'PORT': '3306', 
         'OPTIONS': {
             'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",
         }

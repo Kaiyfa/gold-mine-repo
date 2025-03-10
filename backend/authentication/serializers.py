@@ -32,6 +32,7 @@ class ProfileSerializer(serializers.ModelSerializer):
         return profile
 
 # Machine Serializer
+
 class MachineSerializer(serializers.ModelSerializer):
     class Meta:
         model = Machine
