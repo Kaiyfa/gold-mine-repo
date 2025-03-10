@@ -16,6 +16,7 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from django.db.models import Avg
 import logging
 from .serializers import MachineSerializer  
+from .serializers import PerformanceSerializer  
 
 
 
@@ -51,15 +52,11 @@ class PerformanceView(APIView):
 
     def get(self, request):
         try:
-            performance_data = (
-                Machine.objects.values("id", "name")
-                .annotate(average_downtime=Avg("downtime_hours"))
-            )
-            return Response(performance_data, status=status.HTTP_200_OK)
+            performance_data = Performance.objects.all()
+            serializer = PerformanceSerializer(performance_data, many=True)
+            return Response(serializer.data, status=200)
         except Exception as e:
-            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-
+            return Response({"error": str(e)}, status=500)
 
 # Dashboard Summary API
 class DashboardSummaryView(APIView):
@@ -84,11 +81,11 @@ class DashboardSummaryView(APIView):
 @permission_classes([IsAuthenticated])
 def update_machine_status(request, machine_id):
     """
-    Allows a technician to update a machine's status and track maintenance start/end times.
+    Updates machine status, tracks maintenance history, and automatically updates performance.
     """
     machine = get_object_or_404(Machine, id=machine_id)
     new_status = request.data.get("status")
-    maintenance_time = request.data.get("maintenance_time")  
+    maintenance_time = request.data.get("maintenance_time")  # Expecting ISO format YYYY-MM-DD HH:MM:SS
 
     VALID_STATUSES = ["Available", "Scheduled for Maintenance", "Under Maintenance"]
 
@@ -106,7 +103,10 @@ def update_machine_status(request, machine_id):
     except ValueError:
         return Response({"error": "Invalid datetime format. Use YYYY-MM-DD HH:MM:SS."}, status=status.HTTP_400_BAD_REQUEST)
 
-    # If setting machine to "Scheduled for Maintenance"
+    # Ensure performance record exists
+    performance, created = Performance.objects.get_or_create(machine=machine)
+
+    #  If setting machine to "Scheduled for Maintenance"
     if new_status == "Scheduled for Maintenance":
         machine.status = new_status  # Just update status, no time tracking
 
@@ -114,6 +114,7 @@ def update_machine_status(request, machine_id):
     elif new_status == "Under Maintenance":
         machine.maintenance_start_time = maintenance_time  # ✅ Save start time
         machine.status = new_status
+
         Maintenance.objects.create(
             Machine=machine,
             MaintenanceStart=maintenance_time,
@@ -121,12 +122,16 @@ def update_machine_status(request, machine_id):
             IssueReported="Scheduled Maintenance"
         )
 
+        # 🔹 **Increase Downtime**
+        performance.downtime += 1
+
     #  If setting machine to "Available"
     elif new_status == "Available":
         if not machine.maintenance_start_time:
             #  Instead of blocking, we now create a maintenance history entry
             machine.maintenance_start_time = now()
             machine.maintenance_end_time = maintenance_time
+
             Maintenance.objects.create(
                 Machine=machine,
                 MaintenanceStart=machine.maintenance_start_time,
@@ -144,9 +149,23 @@ def update_machine_status(request, machine_id):
 
         machine.status = new_status
 
+        # 🔹 **Increase Uptime**
+        performance.uptime += 1
+
+    # 🔹 **Auto-calculate efficiency**
+    performance.update_efficiency()
+    performance.save()
+
     machine.save()
 
-    return Response({"message": f"Machine {machine.id} status updated to {machine.status}."}, status=status.HTTP_200_OK)
+    return Response({
+        "message": f"Machine {machine.id} status updated to {machine.status}.",
+        "performance": {
+            "uptime": performance.uptime,
+            "downtime": performance.downtime,
+            "efficiency": f"{performance.efficiency:.2f}%"
+        }
+    }, status=status.HTTP_200_OK)
 
 
 # Submit Maintenance Report
@@ -201,3 +220,21 @@ def get_machines(request):
         return Response(serializer.data)  
     except Exception as e:
         return Response({"error": str(e)}, status=500)  
+    
+@api_view(["POST"])
+@permission_classes([IsAuthenticated])
+def start_machine_operation(request):
+    """
+    Track uptime when an operator starts using a machine.
+    """
+    machine_id = request.data.get("machine_id")
+    operator_username = request.data.get("operator_username")
+
+    machine = Machine.objects.get(id=machine_id)
+    performance, created = Performance.objects.get_or_create(machine=machine)
+
+    # Increment uptime
+    performance.uptime += 1  # This represents one hour of operation (you can change this logic)
+    performance.update_efficiency()
+
+    return Response({"message": f"Machine {machine.id} is now being used by {operator_username}."})
