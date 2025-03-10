@@ -1,6 +1,7 @@
 from django.db import models
 from django.conf import settings  
 from django.utils.timezone import now
+from django.core.exceptions import ValidationError
 
 # Create your models here.
 
@@ -11,25 +12,24 @@ class Machine(models.Model):
         ("Under Maintenance", "Under Maintenance"),
     ]
     name = models.CharField(max_length=100)
-    status = models.CharField(max_length=30, choices=STATUS_CHOICES, default="Available")
     manufacturer = models.CharField(max_length=100)
     model_number = models.CharField(max_length=100)
     purchase_date = models.DateField()
+    status = models.CharField(max_length=30, choices=STATUS_CHOICES, default="Available")
     last_maintenance_date = models.DateTimeField(null=True, blank=True)
-    downtime_hours = models.FloatField(null=True, blank=True) 
+    downtime_hours = models.FloatField(default=0)
 
     def update_downtime(self):
+        """Update downtime if machine was under maintenance."""
         if self.status == "Available" and self.last_maintenance_date:
-            duration = (now() - self.last_maintenance_date).total_seconds() / 3600  
-            self.downtime_hours = duration
+            duration = (now() - self.last_maintenance_date).total_seconds() / 3600
+            self.downtime_hours += duration
             self.save()
 
-    def __str__(self):
-        return self.name
-
-
-    class Meta:
-        db_table = "core_machine"  
+    def clean(self):
+        """Validation to prevent negative downtime hours."""
+        if self.downtime_hours < 0:
+            raise ValidationError("Downtime hours cannot be negative.")
 
     def __str__(self):
         return self.name
