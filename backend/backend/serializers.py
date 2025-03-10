@@ -4,11 +4,13 @@ from core .models import Machine
 from authentication.models import Performance
 
 # Machine Serializer
+# from rest_framework import serializers
+
 class MachineSerializer(serializers.ModelSerializer):
     class Meta:
         model = Machine
         fields = "__all__"
-# ✅ Performance Serializer
+# Performance Serializer
 class PerformanceSerializer(serializers.ModelSerializer):
     class Meta:
         model = Performance

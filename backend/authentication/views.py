@@ -8,23 +8,16 @@ from django.shortcuts import get_object_or_404
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework import generics, status
 from django.http import JsonResponse
-from django.contrib.auth.models import User
-from django.views import View
-from core.models import Machine, Technician 
-from .models import Operator, CustomUser, Performance
+from core.models import Machine
+from .models import CustomUser
 from .serializers import MachineSerializer
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
+import logging
+
+logger = logging.getLogger(__name__)
 
 
-
-@api_view(["GET"])
-@permission_classes([IsAuthenticated])
-def get_machines(request):
-    machines = Machine.objects.all()
-    serializer = MachineSerializer(machines, many=True)
-    return Response(serializer.data)
-
-
+# Login View
 class LoginView(TokenObtainPairView):
     def post(self, request):
         username = request.data.get("username")
@@ -54,49 +47,13 @@ class LoginView(TokenObtainPairView):
             })
 
         return Response({"error": "Invalid credentials"}, status=status.HTTP_401_UNAUTHORIZED)
+    
 
-# CRUD for Machines
-class MachineListCreateView(generics.ListCreateAPIView):
-    queryset = Machine.objects.all()
-    serializer_class = MachineSerializer
-
-class MachineDetailView(generics.RetrieveUpdateDestroyAPIView):
-    queryset = Machine.objects.all()
-    serializer_class = MachineSerializer
-
-# Dashboard Summary View 
-class DashboardSummaryView(APIView):
-    def get(self, request):
-        try:
-            machines_count = Machine.objects.count()
-            operators_count = Operator.objects.count()
-            technicians_count = Technician.objects.count()
-
-            return Response({
-                "machines": machines_count,
-                "operators": operators_count,
-                "technicians": technicians_count
-            })
-        except Exception as e:
-            return Response({"error": str(e)}, status=500)
-
-# Performance View
-class PerformanceView(APIView):
-    def get(self, request):
-        performance_data = Performance.objects.values("machine_id", "performance")
-        return Response(list(performance_data))
-
-#Logout View
-class LogoutView(APIView):
-    def post(self, request):
-        return Response({"message": "Logged out successfully."}, status=status.HTTP_200_OK)
-
-# Token Refresh View
-class RefreshTokenView(TokenRefreshView):
-    pass
 
 # Add User View
 class AddUserView(APIView):
+    permission_classes = [IsAuthenticated]
+
     def post(self, request):
         username = request.data.get("username")
         password = request.data.get("password")
@@ -107,12 +64,49 @@ class AddUserView(APIView):
             return Response({"error": "All fields are required."}, status=status.HTTP_400_BAD_REQUEST)
 
         if CustomUser.objects.filter(username=username).exists():
-            return Response({"error": "Username already taken"}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"error": "Username already taken."}, status=status.HTTP_400_BAD_REQUEST)
 
-        new_user = CustomUser.objects.create(
-            username=username,
-            password=make_password(password),
-            role=role,
-        )
+        try:
+            new_user = CustomUser.objects.create(
+                username=username,
+                password=make_password(password),
+                role=role,
+            )
+            return Response({"message": f"User {username} created successfully!"}, status=status.HTTP_201_CREATED)
 
-        return Response({"message": f"User {username} created successfully!"}, status=status.HTTP_201_CREATED)
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+
+# Logout View
+class LogoutView(APIView):
+    def post(self, request):
+        return Response({"message": "Logged out successfully."}, status=status.HTTP_200_OK)
+
+
+# Token Refresh View
+
+@api_view(["POST"])
+@permission_classes([IsAuthenticated])
+def refresh_access_token(request):
+    """
+    Manually refresh access token using a valid refresh token.
+    """
+    try:
+        refresh_token = request.data.get("refresh")  
+
+        if not refresh_token:
+            return Response({"error": "Refresh token is required."}, status=status.HTTP_400_BAD_REQUEST)
+
+        refresh = RefreshToken(refresh_token)  
+
+        return Response({
+            "access": str(refresh.access_token),
+            "refresh": str(refresh)
+        }, status=status.HTTP_200_OK)
+
+    except Exception as e:
+        return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+
