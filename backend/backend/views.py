@@ -112,13 +112,13 @@ def update_machine_status(request, machine_id):
 
     #  If setting machine to "Under Maintenance"
     elif new_status == "Under Maintenance":
-        machine.maintenance_start_time = maintenance_time  # ✅ Save start time
+        machine.maintenance_start_time = maintenance_time  
         machine.status = new_status
 
         Maintenance.objects.create(
             Machine=machine,
             MaintenanceStart=maintenance_time,
-            MaintenanceDate=maintenance_time.date(),  # ✅ Ensure MaintenanceDate is filled
+            MaintenanceDate=maintenance_time.date(),  
             IssueReported="Scheduled Maintenance"
         )
 
@@ -136,7 +136,7 @@ def update_machine_status(request, machine_id):
                 Machine=machine,
                 MaintenanceStart=machine.maintenance_start_time,
                 MaintenanceEnd=maintenance_time,
-                MaintenanceDate=machine.maintenance_start_time.date(),  # ✅ Ensure MaintenanceDate is filled
+                MaintenanceDate=machine.maintenance_start_time.date(),  
                 IssueReported="No prior maintenance, auto-recorded."
             )
         else:
