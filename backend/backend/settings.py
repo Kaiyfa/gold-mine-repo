@@ -29,7 +29,6 @@ SECRET_KEY = "django-insecure-*awb1+pty_4!64vp!+hx-&a2e@k&d_)2xe)du9q7rj3^%7)5ko
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv("DEBUG", "False") == "True"
 
-ALLOWED_HOSTS = ["*"]
 
 
 # Application definition
@@ -193,5 +192,11 @@ AUTHENTICATION_BACKENDS = [
 # Parse database configuration from environment variables
 DATABASES['default'] = dj_database_url.config(default=os.getenv('DATABASE_URL'))
 
-import os
+ALLOWED_HOSTS = ["*"]
+
+PORT = os.getenv("PORT", "8000")  
+
 PORT = os.getenv("PORT", "8000")
+if os.getenv("RENDER"):
+    SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+    DEBUG = False
