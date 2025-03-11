@@ -14,6 +14,7 @@ from pathlib import Path
 import dj_database_url
 import os
 from dotenv import load_dotenv
+from django.conf import settings
 
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -199,3 +200,11 @@ PORT = os.getenv("PORT", "8000")
 if os.getenv("RENDER"):
     SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
     DEBUG = False
+
+
+
+STATIC_URL = "/static/"
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, "frontend", "build", "static"),  # Serve React build files
+]
+STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")

@@ -2,6 +2,8 @@
 from django.contrib import admin
 from django.urls import path, include
 from django.http import JsonResponse
+from django.views.generic import TemplateView
+from django.urls import path, include
 from .views import (
     MachineListCreateView, MachineDetailView, PerformanceView,
     DashboardSummaryView, update_machine_status, submit_maintenance_report, start_machine_operation
@@ -40,4 +42,8 @@ urlpatterns = [
 
     # Maintenance Report Submission (Technician functionality)
     path("api/maintenance/report/", submit_maintenance_report, name="submit-maintenance-report"),
+
+
+    path("api/", include("your_api_app.urls")),  # Keep API routes
+    path("", TemplateView.as_view(template_name="index.html"), name="home"),  
 ]
