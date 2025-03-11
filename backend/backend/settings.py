@@ -29,7 +29,7 @@ SECRET_KEY = "django-insecure-*awb1+pty_4!64vp!+hx-&a2e@k&d_)2xe)du9q7rj3^%7)5ko
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv("DEBUG", "False") == "True"
 
-ALLOWED_HOSTS = ["*"]  # Temporary fix for deployment issues
+ALLOWED_HOSTS = ["*"]
 
 
 # Application definition
@@ -127,6 +127,7 @@ WSGI_APPLICATION = "backend.wsgi.application"
 
 load_dotenv()
 
+
 DATABASE_URL = os.getenv("DATABASE_URL")
 
 if DATABASE_URL:
@@ -138,16 +139,7 @@ if DATABASE_URL:
         )
     }
 else:
-    DATABASES = {
-        "default": {
-            "ENGINE": "django.db.backends.postgresql", 
-            "NAME": os.getenv("DB_NAME", ""),
-            "USER": os.getenv("DB_USER", ""),
-            "PASSWORD": os.getenv("DB_PASSWORD", ""),
-            "HOST": os.getenv("DB_HOST", ""),
-            "PORT": os.getenv("DB_PORT", "5432"), 
-        }
-    }
+    raise ValueError("DATABASE_URL is not set in environment variables!")
 
 
 
@@ -200,3 +192,6 @@ AUTHENTICATION_BACKENDS = [
 
 # Parse database configuration from environment variables
 DATABASES['default'] = dj_database_url.config(default=os.getenv('DATABASE_URL'))
+
+import os
+PORT = os.getenv("PORT", "8000")
