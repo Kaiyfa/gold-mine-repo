@@ -29,7 +29,7 @@ SECRET_KEY = "django-insecure-*awb1+pty_4!64vp!+hx-&a2e@k&d_)2xe)du9q7rj3^%7)5ko
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv("DEBUG", "False") == "True"
 
-ALLOWED_HOSTS = ["your-app-name.onrender.com", "127.0.0.1", "localhost"]
+ALLOWED_HOSTS = ["*"]  # Temporary fix for deployment issues
 
 
 # Application definition
@@ -125,20 +125,29 @@ WSGI_APPLICATION = "backend.wsgi.application"
 
 
 
-load_dotenv()  #
+load_dotenv()
 
 DATABASE_URL = os.getenv("DATABASE_URL")
-if not DATABASE_URL:
-    raise ValueError("⚠️ DATABASE_URL is not set. Check your Render environment variables.")
 
-DATABASES = {
-    "default": dj_database_url.config(
-        default=DATABASE_URL,
-        conn_max_age=600,
-        ssl_require=True  
-    )
-}
-
+if DATABASE_URL:
+    DATABASES = {
+        "default": dj_database_url.config(
+            default=DATABASE_URL,
+            conn_max_age=600,
+            ssl_require=True  
+        )
+    }
+else:
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.postgresql", 
+            "NAME": os.getenv("DB_NAME", ""),
+            "USER": os.getenv("DB_USER", ""),
+            "PASSWORD": os.getenv("DB_PASSWORD", ""),
+            "HOST": os.getenv("DB_HOST", ""),
+            "PORT": os.getenv("DB_PORT", "5432"), 
+        }
+    }
 
 
 
