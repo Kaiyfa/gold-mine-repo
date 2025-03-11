@@ -1,3 +1,14 @@
+<img width="1512" alt="Technician Dashboard" src="https://github.com/user-attachments/assets/be470d8e-65be-4d45-b07b-b1d5b76a257e" />
+
+
+
+<img width="480" alt="Screenshot 1446-09-11 at 1 51 14 pm" src="https://github.com/user-attachments/assets/1fcfc6a8-17ea-45a6-8e84-fd815e52d2bb" />
+
+
+    
+<img width="1512" alt="Technician Dashboard" src="https://github.com/user-attachments/assets/2741c257-b43b-4240-926a-efe73f970ca9" />
+
+
 Gold Mine Management System
 An advanced mining management application designed for seamless machine operations tracking, performance monitoring, and maintenance reporting.
 
