@@ -12,7 +12,8 @@ from django.core.wsgi import get_wsgi_application
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "backend.settings")
 
-# Explicitly bind the port for Render deployment
-port = os.environ.get("PORT", "8000")
+port = os.getenv("PORT", "8000")
+os.environ["PORT"] = port  # Force the correct port
 
 application = get_wsgi_application()
+
