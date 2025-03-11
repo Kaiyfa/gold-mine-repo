@@ -196,7 +196,6 @@ ALLOWED_HOSTS = ["*"]
 
 PORT = os.getenv("PORT", "8000")  
 
-PORT = os.getenv("PORT", "8000")
 if os.getenv("RENDER"):
     SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
     DEBUG = False
