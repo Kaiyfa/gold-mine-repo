@@ -1,14 +1,17 @@
 # backend/backend/urls.py
-from django.contrib import admin
-from django.urls import path, include
 from django.http import JsonResponse
 from django.views.generic import TemplateView
-from django.urls import path, include
 from .views import (
     MachineListCreateView, MachineDetailView, PerformanceView,
     DashboardSummaryView, update_machine_status, submit_maintenance_report, start_machine_operation
 )
 from backend.views import get_machines
+from django.urls import path, include, re_path
+from django.contrib import admin
+from django.urls import path, include, re_path
+from django.conf import settings
+from django.conf.urls.static import static
+import os
 
 # Home endpoint (optional)
 def home(request):
@@ -43,7 +46,17 @@ urlpatterns = [
     # Maintenance Report Submission (Technician functionality)
     path("api/maintenance/report/", submit_maintenance_report, name="submit-maintenance-report"),
 
-
-    path("api/", include("your_api_app.urls")),  # Keep API routes
-    path("", TemplateView.as_view(template_name="index.html"), name="home"),  
+    path("admin/", admin.site.urls),
+    path("api/", include("core.urls")),  # Ensure your API routes work
+    path("auth/", include("authentication.urls")),  # ✅ Authentication
 ]
+
+
+if os.path.exists(os.path.join(settings.STATICFILES_DIRS[0], "index.html")):
+    urlpatterns += [
+        re_path(r"^.*$", TemplateView.as_view(template_name="index.html")),
+    ]
+
+# ✅ Serve static files in development
+if settings.DEBUG:
+    urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
