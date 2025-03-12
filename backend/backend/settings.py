@@ -203,8 +203,11 @@ if os.getenv("RENDER"):
 
 
 
+
+# Static files settings
 STATIC_URL = "/static/"
-STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, "frontend", "build", "static"),  # Serve React build files
-]
+STATICFILES_DIRS = [os.path.join(BASE_DIR, "static/build")]
 STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
+
+# Serve React index.html for frontend
+TEMPLATES[0]["DIRS"] = [os.path.join(BASE_DIR, "backend/static/build")]
