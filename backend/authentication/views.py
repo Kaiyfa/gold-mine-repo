@@ -47,6 +47,35 @@ class LoginView(TokenObtainPairView):
             })
 
         return Response({"error": "Invalid credentials"}, status=status.HTTP_401_UNAUTHORIZED)
+# class LoginView(TokenObtainPairView):
+#     def post(self, request):
+#         username = request.data.get("username")
+#         password = request.data.get("password")
+#         selected_role = request.data.get("role")
+
+#         user = authenticate(username=username, password=password)
+
+#         if user is not None:
+#             print(f"User authenticated: {user.username}, Role in DB: {user.role}, Selected Role: {selected_role}")
+
+#             if selected_role == "admin" and user.is_superuser:
+#                 user_role = "admin"
+#             else:
+#                 user_role = user.role
+
+#             if user_role != selected_role:
+#                 return Response({"error": "Invalid role selection."}, status=status.HTTP_403_FORBIDDEN)
+
+#             refresh = RefreshToken.for_user(user)
+#             refresh["role"] = user_role
+
+#             return Response({
+#                 "refresh": str(refresh),
+#                 "access": str(refresh.access_token),
+#                 "role": user_role
+#             })
+
+#         return Response({"error": "Invalid credentials"}, status=status.HTTP_401_UNAUTHORIZED)
     
 
 

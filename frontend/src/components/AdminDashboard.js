@@ -65,11 +65,11 @@ function AdminDashboard() {
     };
     
     const performanceGraphData = {
-        labels: performanceData.map((item) => `Machine ${item.machine_id}`),
+        labels: performanceData?.map((item) => `Machine ${item.machine_id}`) || [],
         datasets: [
             {
                 label: "Efficiency (%)",
-                data: performanceData.map((item) => item.efficiency),
+                data: performanceData?.map((item) => item.efficiency) || [],
                 backgroundColor: "rgba(255, 215, 0, 0.7)",
             },
         ],
