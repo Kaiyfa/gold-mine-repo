@@ -2,7 +2,7 @@ import axios from "axios";
 
 // Base API instance
 const api = axios.create({
-    baseURL: "https://gold-mine-repo.onrender.com",
+    baseURL: process.env.REACT_APP_API_URL, 
     headers: { "Content-Type": "application/json" },
 });
 
@@ -17,16 +17,16 @@ const refreshAccessToken = async () => {
     }
 
     try {
-        const response = await axios.post("http://127.0.0.1:8000/api/auth/refresh-token/", { refresh: refreshToken });
+        const response = await axios.post(`${process.env.REACT_APP_API_URL}/api/auth/refresh-token/`, { refresh: refreshToken }); 
 
         if (response.status === 200) {
             localStorage.setItem("access", response.data.access);
-            localStorage.setItem("refresh", response.data.refresh);  // Update refresh token too
+            localStorage.setItem("refresh", response.data.refresh);  
             console.log("🔄 Access token refreshed successfully!");
             return response.data.access;
         }
     } catch (error) {
-        console.error("❌ Failed to refresh token:", error);
+        console.error("Failed to refresh token:", error);
         localStorage.clear();
         window.location.href = "/";
         return null;

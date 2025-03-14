@@ -1,9 +1,9 @@
 import React, { useState } from "react";
-import api from "../api";
+import api from "../api"; // Ensure this import is correct
 import { useNavigate } from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
 import "bootstrap/dist/css/bootstrap.min.css"; 
-import { FaBars, FaUserShield, FaTools, FaHardHat, FaWrench, FaLock } from "react-icons/fa"; // ✅ Icons for roles
+import { FaBars, FaUserShield, FaTools, FaHardHat, FaWrench, FaLock } from "react-icons/fa"; 
 
 function Login() {
     const [username, setUsername] = useState("");
