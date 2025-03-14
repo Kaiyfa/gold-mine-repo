@@ -104,7 +104,7 @@ STATICFILES_DIRS = [os.path.join(BASE_DIR, "static/build")]
 
 
 # Where static files are collected when you run `collectstatic`
-STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
+STATIC_ROOT = os.path.join(BASE_DIR, "backend/staticfiles")
 
 # Media files
 MEDIA_URL = "/media/"
