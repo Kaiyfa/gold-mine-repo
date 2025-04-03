@@ -192,7 +192,8 @@ This project is licensed under the MIT License.
 Support & Contact
 Project Owner: Kaiyfa
 Issues/Bugs? Open an issue on GitHub.
-Need help? Email me at kaiyfa@example.com.
+Need help? Email me at adamal.sall@gmail.com
+
 
 
 
